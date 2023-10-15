@@ -5,7 +5,8 @@
 #include "../include/image/image_blocks.h"
 #include "../include/common.h"
 #include "../include/misc/timer.h"
-#include "../include/maxtree/maxtree_trie.h"
+#include "maxtree_union_find.h"
+//#include "../include/maxtree/maxtree_trie.h"
 #include "../include/maxtree/maxtree.h"
 #include "../include/misc/edge.h"
 #include "../include/maxtree/check_equiv.h"
@@ -57,14 +58,10 @@ void construct()
   index_t* parents2 = new index_t[N];
 
   {
-    pmt::Timer t("seq trie");
-    pmt::maxtree_trie(img, parents2);
-  }
+    pmt::Timer t;
+    pmt::maxtree_union_find(vals, parents2, W, H, D);
 
-  {
-    out("Checking if the max-tree is correct...");
-    pmt::check_equiv(parents, N, parents2, vals);
-  }
+    printf("%f megapixel/s (seq union-find)\n", N / 1e6 / t.stop());  }
 
   delete[] parents2;
   delete[] parents;

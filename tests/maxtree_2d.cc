@@ -5,7 +5,8 @@
 #include "../include/image/image_blocks.h"
 #include "../include/common.h"
 #include "../include/misc/timer.h"
-#include "../include/maxtree/maxtree_trie.h"
+#include "maxtree_union_find.h"
+//#include "../include/maxtree/maxtree_trie.h"
 #include "../include/maxtree/maxtree.h"
 #include "../include/misc/edge.h"
 #include "../include/maxtree/check_equiv.h"
@@ -15,7 +16,7 @@ using index_t = uint32_t;
 template <typename value_t>
 void construct()
 {
-  index_t W = 10000U;
+  index_t W = 4096U;
   index_t H = W;
   index_t D = 1U;
   index_t N = W * H * D;
@@ -58,9 +59,9 @@ void construct()
 
   {
     pmt::Timer t;
-    pmt::maxtree_trie(img, parents2);
+    pmt::maxtree_union_find(vals, parents2, W, H, 1U);
 
-    printf("%f megapixel/s (seq)\n", N / 1e6 / t.stop());
+    printf("%f megapixel/s (seq union-find)\n", N / 1e6 / t.stop());
   }
 
   {
