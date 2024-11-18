@@ -21,6 +21,7 @@ void rootfix(index_t* parents, size_t n, attribute_t *attributes, functor1_t con
   index_t* RESTRICT roots = new index_t[n];
   index_t* RESTRICT node_indices = new index_t[2U * n];
   index_t* RESTRICT aux = node_indices + n;
+  char* RESTRICT merging = new char[n];
 
   select.item_blocks().apply([=](index_t i) ALWAYS_INLINE
     {
@@ -42,12 +43,16 @@ void rootfix(index_t* parents, size_t n, attribute_t *attributes, functor1_t con
       [=](index_t const& x, index_t* out) ALWAYS_INL_L(uint_fast8_t)
       {
         index_t root = roots[x];
+
+        bool is_merging = hash(x, 1) != 0 && hash(root, 1) == 0;
+
+        merging[x] = is_merging;
         
         if (root == x) return 0;
 
         *out = x;
 
-        if (hash(x, 1) != 0 && hash(root, 1) == 0)
+        if (is_merging)
         {
           return 2;
         }
@@ -65,17 +70,12 @@ void rootfix(index_t* parents, size_t n, attribute_t *attributes, functor1_t con
       index_t x = node_indices[i];
       index_t root = roots[x];
 
-      if (hash(root, 1) == 0)
+      if (!merging[root])
       {
         return;
       }
 
       index_t root_root = roots[root];
-
-      if (hash(root_root, 1) != 0)
-      {
-        return;
-      }
       
       attributes[x] = plus(attributes[root], attributes[x]);
       roots[x] = root_root;
@@ -96,6 +96,7 @@ void rootfix(index_t* parents, size_t n, attribute_t *attributes, functor1_t con
     });
   }
 
+  delete[] merging;
   delete[] node_indices;
   delete[] roots;
 }
