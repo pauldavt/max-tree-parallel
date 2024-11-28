@@ -8,6 +8,7 @@
 #include "../include/maxtree/maxtree.h"
 #include "../include/misc/edge.h"
 #include "../include/maxtree/tree_scan.h"
+#include "../include/maxtree/tree_scan_seq.h"
 
 using index_t = uint32_t;
 
@@ -47,6 +48,7 @@ void construct()
   }
 
   index_t* area = new index_t[N];
+  index_t* area2 = new index_t[N];
 
   {
     auto const &weight = [](index_t i) ALWAYS_INL_L(index_t) {
@@ -60,22 +62,27 @@ void construct()
     pmt::tree_scan(parents, N, area, weight, plus);
   }
 
-  index_t root = 0;
-  size_t max_area = area[root];
-  for (size_t i = 0; i < N; ++i)
-  { 
-    if (area[i] > max_area)
-    {
-      max_area = area[i];
-      root = i;
-    }
+  {
+    auto const &weight = [](index_t i) ALWAYS_INL_L(index_t) {
+      return 1U;
+    };
+
+    auto const &plus = [](index_t a, index_t b) ALWAYS_INL_L(index_t) {
+      return a + b;
+    };
+
+    pmt::tree_scan_seq(parents, N, area2, weight, plus);
   }
 
-  check(parents[root] == root);
-  check(max_area == N);
+  for (size_t i = 0; i < N; ++i)
+  {
+    check(area[i] == area2[i]);
+  }
 
-  info("Area of the root seems correct.");
+  info("Areas match.");
 
+  delete[] area;
+  delete[] area2;
   delete[] parents;
   delete[] rand;
   delete[] vals;

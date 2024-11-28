@@ -79,6 +79,7 @@ void construct(index_t width, index_t height, index_t depth)
 
   for (size_t i = 0; i < n; ++i)
   {
+    check(vals_out2[i] == vals[i]);
     check(vals_out2[i] == vals_out[i]);
   }
 
